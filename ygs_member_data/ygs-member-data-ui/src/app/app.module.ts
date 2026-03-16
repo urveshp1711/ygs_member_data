@@ -11,7 +11,6 @@ import { AppRoutingModule } from './app-routing.module';
 
 // Print Service
 import { NgxPrintModule } from 'ngx-print';
-import { RouterModule, RouterOutlet } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptor } from './interceptor/http-interceptor';
@@ -24,8 +23,6 @@ import { ToastsContainer } from './components/common/toasts-container.component'
 @NgModule({
     imports: [
         MembersModule,
-        RouterModule,
-        RouterOutlet,
         BrowserModule,
         FormsModule,
         AppRoutingModule,
