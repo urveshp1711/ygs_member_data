@@ -1,0 +1,30 @@
+<div class="top-navbar px-4">
+    <div class="navbar-brand me-4">
+        <h5 class="m-0" style="color: #1e293b; font-weight: 700; letter-spacing: -0.02em;">UBS Seva Trust - <span
+                style="color: #4f46e5;">Admin</span></h5>
+    </div>
+
+    <nav class="menu-nav">
+        <ul>
+            <li routerLinkActive="active">
+                <a routerLink="/member">Member List</a>
+            </li>
+            <li routerLinkActive="active">
+                <a routerLink="/s-member">Shubhechhak List</a>
+            </li>
+            <li routerLinkActive="active">
+                <a routerLink="/mng-donation">Invoice Generator</a>
+            </li>
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+                <a routerLink="/donation-summary">Donation Summary</a>
+            </li>
+            <li routerLinkActive="active">
+                <a routerLink="/reports">Report</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="btn-logout ms-auto">
+        <i class="bi bi-box-arrow-right" title="Logout" role="button" (click)="onSignout()"></i>
+    </div>
+</div>

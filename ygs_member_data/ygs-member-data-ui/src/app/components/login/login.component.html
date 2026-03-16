@@ -1,0 +1,31 @@
+<div class="login-container">
+    <div class="login-box">
+        <div class="text-center mb-3">
+            <img src="../../logo-new.ico" width="100px" class="mb-2">
+            <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">Welcome Back</h4>
+            <p class="text-muted mb-3" style="font-size: 0.9rem;">Enter details to login</p>
+        </div>
+        <form [formGroup]="loginForm">
+            <div class="form-group mb-2">
+                <label for="username" class="small fw-semibold mb-1">User Name</label>
+                <input type="text" id="username" class="form-control" placeholder="Username" required
+                    formControlName="userName">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password" class="small fw-semibold mb-1">Password</label>
+                <input type="password" id="password" class="form-control" formControlName="password"
+                    placeholder="Password" required>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-6 shadow-sm"
+                    (click)="onSubmit()">Login</button>
+            </div>
+
+            <div class="login-error text-danger mt-2 text-center" *ngIf="invalidCredential">
+                <i class="bi bi-exclamation-circle me-1"></i> Invalid credentials
+            </div>
+        </form>
+    </div>
+</div>

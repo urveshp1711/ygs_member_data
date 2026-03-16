@@ -1,0 +1,14 @@
+<div class="container py-2">
+    <!-- Header removed as it is now in the global top-navbar -->
+
+
+    <!-- <div class="family-tree" *ngIf="familyObject">
+        <ul>
+            <app-family-node [member]="familyObject"></app-family-node>
+        </ul>
+    </div> -->
+
+    <div id="container" class="tree border shadow-sm" *ngIf="familyObject">
+        <ul familyTreeNode [member]="familyObject"></ul>
+    </div>
+</div>
