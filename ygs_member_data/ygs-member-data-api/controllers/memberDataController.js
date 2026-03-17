@@ -23,7 +23,7 @@ const getUniqueValues = (rows, column) => {
 };
 
 const SHEETS = {
-    MEMBERS: 'mst_member',
+    MEMBERS: 'Members',
     SHUBHECHHAK: 'mst_subhechhak',
     DONATION: 'donation',
     CONFIG: 'configuration'
@@ -32,24 +32,34 @@ const SHEETS = {
 // GET: api/MemberData
 exports.getAllMembers = async (req, res) => {
     try {
-        const configRows = await googleSheets.getRows(SHEETS.CONFIG);
-        const isActive = configRows.find(c => c.key === 'active')?.value?.toLowerCase() === 'true';
+        let isActive = true;
+        try {
+            const configRows = await googleSheets.getRows(SHEETS.CONFIG);
+            isActive = configRows.find(c => c.key === 'active')?.value?.toLowerCase() !== 'false';
+        } catch (e) {
+            console.warn(`Configuration sheet "${SHEETS.CONFIG}" not found or error fetching. Defaulting to ACTIVE.`);
+        }
+
         if (!isActive) return res.json([]);
 
         const rows = await googleSheets.getRows(SHEETS.MEMBERS);
         // Map to expected format and sort
         const formattedRows = rows.map(row => ({
-            "Id": row._id,
-            "Member Id": row.memberId,
-            "Gender": row.gender,
-            "Name": row.name,
-            "Date Of Birth": row.dateOfBirth,
-            "Birth Date": row.dob,
-            "Relation": row.relation,
-            "Married": row.marriagestatus,
-            "Profession": row.profession,
-            "Mobile": row.mobile
-        })).sort((a, b) => parseInt(a["Member Id"]) - parseInt(b["Member Id"]));
+            "Id": row._id || row['House no.'],
+            "Member Id": row.memberId || row['House no.'],
+            "Gender": row.gender || '',
+            "Name": row.name || row['Name'],
+            "Date Of Birth": row.dateOfBirth || '',
+            "Birth Date": row.dob || row.dateOfBirth || '',
+            "Relation": row.relation || '',
+            "Married": row.marriagestatus || '',
+            "Profession": row.profession || '',
+            "Mobile": row.mobile || ''
+        })).sort((a, b) => {
+            const idA = parseInt(a["Member Id"]) || 0;
+            const idB = parseInt(b["Member Id"]) || 0;
+            return idA - idB;
+        });
 
         res.json(formattedRows);
     } catch (err) {
@@ -115,8 +125,14 @@ exports.getMemberByMemberId = async (req, res) => {
 // GET: api/MemberData/shubhechhak
 exports.getShubhechhakMembers = async (req, res) => {
     try {
-        const configRows = await googleSheets.getRows(SHEETS.CONFIG);
-        const isActive = configRows.find(c => c.key === 'active')?.value?.toLowerCase() === 'true';
+        let isActive = true;
+        try {
+            const configRows = await googleSheets.getRows(SHEETS.CONFIG);
+            isActive = configRows.find(c => c.key === 'active')?.value?.toLowerCase() !== 'false';
+        } catch (e) {
+            console.warn(`Configuration sheet "${SHEETS.CONFIG}" not found or error fetching. Defaulting to ACTIVE.`);
+        }
+        
         if (!isActive) return res.json([]);
 
         const rows = await googleSheets.getRows(SHEETS.SHUBHECHHAK);
