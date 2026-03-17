@@ -31,6 +31,15 @@ export class InvoiceGeneratorComponent {
   sortColumn = 'PaymentDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  months = [
+    { value: 0, name: 'January' }, { value: 1, name: 'February' }, { value: 2, name: 'March' },
+    { value: 3, name: 'April' }, { value: 4, name: 'May' }, { value: 5, name: 'June' },
+    { value: 6, name: 'July' }, { value: 7, name: 'August' }, { value: 8, name: 'September' },
+    { value: 9, name: 'October' }, { value: 10, name: 'November' }, { value: 11, name: 'December' }
+  ];
+
+  years: number[] = [];
+
   private modalService: NgbModal = inject(NgbModal);
   private toastService = inject(ToastService);
   closeResult: WritableSignal<string> = signal('');
@@ -50,6 +59,10 @@ export class InvoiceGeneratorComponent {
   }
 
   async ngOnInit() {
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear - 2; i <= currentYear + 5; i++) {
+      this.years.push(i);
+    }
 
     this.memberForm = this.formBuilder.group({
       memberId: [null, [Validators.required]],
@@ -57,11 +70,43 @@ export class InvoiceGeneratorComponent {
       name: ['', [Validators.required]],
       mobile: [''],
       paymentType: ['રોકડા', [Validators.required]],
-      paymentNo: ['']
+      paymentNo: [''],
+      fromMonth: [new Date().getMonth()],
+      fromYear: [currentYear],
+      toMonth: [new Date().getMonth()],
+      toYear: [currentYear]
     });
 
     this.memberForm.controls.paymentNo.disable();
     this.setupAutoFetch();
+    this.setupFeeCalculation();
+  }
+
+  setupFeeCalculation() {
+    const calculationFields = ['fromMonth', 'fromYear', 'toMonth', 'toYear'];
+    calculationFields.forEach(field => {
+      this.memberForm?.get(field)?.valueChanges.subscribe(() => {
+        this.calculateFee();
+      });
+    });
+  }
+
+  calculateFee() {
+    const form = this.memberForm?.getRawValue();
+    if (!form) return;
+
+    const start = moment([form.fromYear, form.fromMonth]);
+    const end = moment([form.toYear, form.toMonth]);
+
+    if (end.isBefore(start)) {
+      this.memberForm?.patchValue({ amount: 0 }, { emitEvent: false });
+      return;
+    }
+
+    // Calculate difference in months (inclusive)
+    const months = end.diff(start, 'months') + 1;
+    const feePerMonth = 100;
+    this.memberForm?.patchValue({ amount: months * feePerMonth }, { emitEvent: false });
   }
 
   setupAutoFetch() {
@@ -139,14 +184,18 @@ export class InvoiceGeneratorComponent {
 
   onSubmit() {
     const req = this.memberForm?.getRawValue();
-    this.downloadSlip(req, 'Donation generated and added successfully!', false);
+    this.downloadSlip(req, 'Association Fee generated and added successfully!', false);
   }
 
   onReset(): void {
     this.memberForm!.reset();
     this.memberForm?.patchValue({
       paymentType: 'રોકડા',
-      amount: 0
+      amount: 0,
+      fromMonth: new Date().getMonth(),
+      fromYear: new Date().getFullYear(),
+      toMonth: new Date().getMonth(),
+      toYear: new Date().getFullYear()
     })
   }
 
@@ -210,7 +259,7 @@ export class InvoiceGeneratorComponent {
 
   async generateSlip() {
     const req = this.memberForm?.getRawValue();
-    this.downloadSlip(req, 'Donation slip generated successfully!');
+    this.downloadSlip(req, 'Association Fee slip generated successfully!');
   }
 
   downloadSlip(req: any, message, generateOnly = true) {

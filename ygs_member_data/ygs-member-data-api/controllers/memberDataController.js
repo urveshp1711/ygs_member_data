@@ -78,7 +78,7 @@ exports.getMemberById = async (req, res) => {
         if (!member) return res.status(404).json({ message: "Not found" });
 
         // Lead calculation (Self member with same memberId)
-        const leadMember = rows.find(r => r.memberId === member.memberId && r.relation === 'Self');
+        const leadMember = rows.find(r => r['House no.'] === member['House no.']);
 
         const result = {
             "Lead": '',
@@ -109,14 +109,14 @@ exports.getMemberByMemberId = async (req, res) => {
     try {
         const memberId = req.params.memberId;
         const rows = await googleSheets.getRows(SHEETS.MEMBERS);
-        const member = rows.find(r => r.memberId === memberId && r.relation === 'Self');
+        const member = rows.find(r => r['House no.'] === memberId);
 
         if (!member) return res.status(404).json({ message: "Member not found" });
 
         res.json({
-            "Name": member.name,
-            "City": member.city,
-            "Mobile": member.mobile
+            "Name": member['Name'] || '',
+            "City": member['City'] || '',
+            "Mobile": member['Mobile'] || ''
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -127,28 +127,28 @@ exports.getMemberByMemberId = async (req, res) => {
 exports.getBloodGroups = async (req, res) => {
     try {
         const rows = await googleSheets.getRows(SHEETS.MEMBERS);
-        res.json(getUniqueValues(rows, 'bloodGroup'));
+        res.json(getUniqueValues(rows, 'Blood Group'));
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 exports.getRelations = async (req, res) => {
     try {
         const rows = await googleSheets.getRows(SHEETS.MEMBERS);
-        res.json(getUniqueValues(rows, 'relation'));
+        res.json(getUniqueValues(rows, 'Relation'));
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 exports.getProfessions = async (req, res) => {
     try {
         const rows = await googleSheets.getRows(SHEETS.MEMBERS);
-        res.json(getUniqueValues(rows, 'profession'));
+        res.json(getUniqueValues(rows, 'Profession'));
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 exports.getMarriageStatuses = async (req, res) => {
     try {
         const rows = await googleSheets.getRows(SHEETS.MEMBERS);
-        res.json(getUniqueValues(rows, 'marriagestatus'));
+        res.json(getUniqueValues(rows, 'Married'));
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
@@ -251,7 +251,7 @@ exports.addMember = async (req, res) => {
         let isNew = false;
 
         if (!newMemberId) {
-            const maxId = rows.reduce((max, row) => Math.max(max, parseInt(row.memberId) || 0), 0);
+            const maxId = rows.reduce((max, row) => Math.max(max, parseInt(row['House no.']) || 0), 0);
             newMemberId = maxId + 1;
             isNew = true;
         }

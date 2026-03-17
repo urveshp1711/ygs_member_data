@@ -59,6 +59,58 @@
                     </div>
 
                     <div class="section-title mb-4 mt-5">
+                        <i class="bi bi-calendar-range me-2"></i>
+                        Fee Period Selection
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="input-group-custom">
+                                <label for="fromMonth" class="custom-label">From Month</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-calendar-month icon"></i>
+                                    <select id="fromMonth" formControlName="fromMonth" class="form-control-custom select-custom">
+                                        <option *ngFor="let m of months" [value]="m.value">{{m.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group-custom">
+                                <label for="fromYear" class="custom-label">From Year</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-calendar-date icon"></i>
+                                    <select id="fromYear" formControlName="fromYear" class="form-control-custom select-custom">
+                                        <option *ngFor="let y of years" [value]="y">{{y}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group-custom">
+                                <label for="toMonth" class="custom-label">To Month</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-calendar-month icon"></i>
+                                    <select id="toMonth" formControlName="toMonth" class="form-control-custom select-custom">
+                                        <option *ngFor="let m of months" [value]="m.value">{{m.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group-custom">
+                                <label for="toYear" class="custom-label">To Year</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-calendar-date icon"></i>
+                                    <select id="toYear" formControlName="toYear" class="form-control-custom select-custom">
+                                        <option *ngFor="let y of years" [value]="y">{{y}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title mb-4 mt-5">
                         <i class="bi bi-currency-rupee me-2"></i>
                         Payment Details
                     </div>
@@ -66,12 +118,12 @@
                     <div class="row g-4 mb-5">
                         <div class="col-md-4">
                             <div class="input-group-custom">
-                                <label for="amount" class="custom-label">Donation Amount <span
+                                <label for="amount" class="custom-label">Association Fee <span
                                         class="required">*</span></label>
                                 <div class="amount-input-wrapper">
                                     <span class="currency-symbol">₹</span>
                                     <input id="amount" type="number" formControlName="amount"
-                                        class="form-control-custom amount-input" placeholder="0.00" />
+                                        class="form-control-custom amount-input" placeholder="0.00" readonly />
                                 </div>
                             </div>
                         </div>
