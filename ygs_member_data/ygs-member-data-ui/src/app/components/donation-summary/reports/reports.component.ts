@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-donation-reports',
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule],
     template: `
     <div class="row g-4">
       <div class="col-md-6" *ngFor="let report of reports">

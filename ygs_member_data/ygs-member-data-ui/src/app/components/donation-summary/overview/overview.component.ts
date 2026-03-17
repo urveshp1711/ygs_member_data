@@ -6,7 +6,8 @@ import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-donation-overview',
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule],
     template: `
 <!-- Loader -->
 <div *ngIf="loading" class="loader-container">

@@ -6,7 +6,8 @@ import { ToastService } from '../../../services/toast-service';
 
 @Component({
     selector: 'app-donation-transactions',
-    standalone: false,
+    standalone: true,
+    imports: [CommonModule],
     template: `
 <div *ngIf="loading" class="loader-container">
     <div class="loader"></div>
