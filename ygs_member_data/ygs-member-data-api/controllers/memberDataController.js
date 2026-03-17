@@ -24,8 +24,23 @@ const getUniqueValues = (rows, column) => {
 
 const SHEETS = {
     MEMBERS: 'Members',
-    DONATION: 'donation',
+    ASSOCIATION_FEES: 'AssociationFees',
     CONFIG: 'configuration'
+};
+
+const ensureAssociationFeesSheet = async () => {
+    try {
+        await googleSheets.createSheetIfNotExists(SHEETS.ASSOCIATION_FEES);
+        // We use sheets API directly to check/set headers if needed, 
+        // but getRows already handles basic check.
+        const rows = await googleSheets.getRows(SHEETS.ASSOCIATION_FEES).catch(() => []);
+        if (rows.length === 0) {
+            const headers = [['id', 'memberId', 'name', 'mobile', 'amount', 'paymentType', 'paymentNo', 'paymentDate', 'fromMonth', 'fromYear', 'toMonth', 'toYear', 'city']];
+            await googleSheets.updateEntireSheet(SHEETS.ASSOCIATION_FEES, headers);
+        }
+    } catch (e) {
+        console.warn('Initialization of AssociationFees sheet failed:', e.message);
+    }
 };
 
 // GET: api/MemberData
@@ -155,28 +170,79 @@ exports.getMarriageStatuses = async (req, res) => {
 // Donation Aggregation
 exports.getTotalDonation = async (req, res) => {
     try {
-        const rows = await googleSheets.getRows(SHEETS.DONATION);
+        const rows = await googleSheets.getRows(SHEETS.ASSOCIATION_FEES);
         const aggregation = {};
 
         rows.forEach(row => {
-            const date = new Date(row.paymentDate);
-            if (isNaN(date.getTime())) return;
-            const year = date.getFullYear();
             const amount = parseFloat(row.amount) || 0;
+            const fromMonth = parseInt(row.fromMonth);
+            const fromYear = parseInt(row.fromYear);
+            const toMonth = parseInt(row.toMonth);
+            const toYear = parseInt(row.toYear);
 
-            if (!aggregation[year]) {
-                aggregation[year] = { year, avgDonation: 0, totalEntries: 0, totalDonation: 0 };
+            if (isNaN(fromMonth) || isNaN(fromYear) || isNaN(toMonth) || isNaN(toYear)) return;
+
+            // Helper to get number of months between dates
+            const startDate = new Date(fromYear, fromMonth, 1);
+            const endDate = new Date(toYear, toMonth, 1);
+            
+            // Generate all months in between inclusive
+            let current = new Date(startDate);
+            const monthCount = (toYear - fromYear) * 12 + (toMonth - fromMonth) + 1;
+            const amountPerMonth = amount / monthCount;
+
+            while (current <= endDate) {
+                const y = current.getFullYear();
+                const m = current.getMonth();
+
+                if (!aggregation[y]) {
+                    aggregation[y] = { 
+                        year: y, 
+                        avgDonation: 0, 
+                        totalEntries: 0, 
+                        totalDonation: 0,
+                        months: Array.from({ length: 12 }, (_, i) => ({
+                            month: i,
+                            totalEntries: 0,
+                            totalDonation: 0
+                        }))
+                    };
+                }
+
+                // If this is the FIRST month of the payment record, we count it as an "entry" for the year summary
+                // to avoid double counting entries in the main stat cards, but we track amount in all months.
+                // Or better: an entry is a payment record. So totalEntries = rows.length. 
+                // But for the month breakdown, we show how many payments covers that month.
+                
+                aggregation[y].months[m].totalEntries += 1;
+                aggregation[y].months[m].totalDonation += amountPerMonth;
+                
+                // Move to next month
+                current.setMonth(current.getMonth() + 1);
             }
-            aggregation[year].totalEntries += 1;
-            aggregation[year].totalDonation += amount;
+
+            // Group level aggregation (Total Entries is count of records, Total Donation is sum of amounts)
+            // Note: A payment spanning years will contribute to multiple year aggregations if we do it here.
+            // Simplified: Re-calculated below from month data or just use row data.
         });
 
-        const result = Object.values(aggregation).map(item => ({
-            ...item,
-            avgDonation: item.totalDonation / item.totalEntries
-        }));
+        const finalResult = Object.values(aggregation).map(item => {
+            // Recalculate group totals from month data
+            const yearTotalDonation = item.months.reduce((sum, m) => sum + m.totalDonation, 0);
+            const yearTotalEntries = item.months.reduce((sum, m) => sum + m.totalEntries, 0); // This is "month-level entries"
+            
+            // To get original record count for that year, we need to track which records touched this year
+            return {
+                ...item,
+                totalDonation: yearTotalDonation,
+                // We keep totalEntries as "How many payments touched this year"
+                // Actually, let's just use the month sum for consistency in the report
+                totalEntries: yearTotalEntries,
+                avgDonation: yearTotalEntries > 0 ? yearTotalDonation / yearTotalEntries : 0
+            };
+        }).sort((a, b) => b.year - a.year);
 
-        res.json(result);
+        res.json(finalResult);
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
@@ -184,7 +250,7 @@ exports.getTotalDonation = async (req, res) => {
 exports.getDonationData = async (req, res) => {
     try {
         const { year } = req.query;
-        let rows = await googleSheets.getRows(SHEETS.DONATION);
+        let rows = await googleSheets.getRows(SHEETS.ASSOCIATION_FEES);
 
         if (year) {
             rows = rows.filter(row => {
@@ -193,17 +259,24 @@ exports.getDonationData = async (req, res) => {
             });
         }
 
-        const formattedRows = rows.map(row => ({
-            id: row.id,
-            "Member Id": row.memberId,
-            "Name": row.name,
-            "City": row.city,
-            "Mobile": row.mobile,
-            "Amount": row.amount,
-            "PaymentType": row.paymentType,
-            "PaymentNo": row.paymentNo,
-            "PaymentDate": row.paymentDate
-        })).sort((a, b) => new Date(b.PaymentDate) - new Date(a.PaymentDate));
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const formattedRows = rows.map(row => {
+            const fromP = (row.fromMonth !== undefined && row.fromMonth !== '') ? `${monthNames[row.fromMonth]} ${row.fromYear}` : '';
+            const toP = (row.toMonth !== undefined && row.toMonth !== '') ? `${monthNames[row.toMonth]} ${row.toYear}` : '';
+            
+            return {
+                id: row.id,
+                "Member Id": row.memberId,
+                "Name": row.name,
+                "City": row.city,
+                "Mobile": row.mobile,
+                "Amount": parseFloat(row.amount) || 0,
+                "PaymentType": row.paymentType,
+                "PaymentNo": row.paymentNo,
+                "PaymentDate": row.paymentDate,
+                "FeePeriod": fromP === toP ? fromP : `${fromP} - ${toP}`
+            };
+        }).sort((a, b) => new Date(b.PaymentDate) - new Date(a.PaymentDate));
 
         res.json(formattedRows);
     } catch (err) { res.status(500).json({ message: err.message }); }
@@ -212,7 +285,7 @@ exports.getDonationData = async (req, res) => {
 // Download Donation Data (Excel)
 exports.downloadDonationData = async (req, res) => {
     try {
-        const rows = await googleSheets.getRows(SHEETS.DONATION);
+        const rows = await googleSheets.getRows(SHEETS.ASSOCIATION_FEES);
         const data = rows.map(row => ({
             receiptNo: row.id,
             memberId: row.memberId,
@@ -222,7 +295,11 @@ exports.downloadDonationData = async (req, res) => {
             amount: row.amount,
             paymentType: row.paymentType,
             paymentNo: row.paymentNo,
-            paymentDate: row.paymentDate
+            paymentDate: row.paymentDate,
+            fromMonth: row.fromMonth,
+            fromYear: row.fromYear,
+            toMonth: row.toMonth,
+            toYear: row.toYear
         }));
 
         const workbook = new ExcelJS.Workbook();
@@ -328,14 +405,15 @@ exports.deleteMember = async (req, res) => {
 // DELETE: api/MemberData/donation/:id
 exports.deleteDonation = async (req, res) => {
     try {
-        await googleSheets.deleteRow(SHEETS.DONATION, 'id', req.params.id);
-        res.json({ message: "Donation record deleted successfully!" });
+        await googleSheets.deleteRow(SHEETS.ASSOCIATION_FEES, 'id', req.params.id);
+        res.json({ message: "Association Fee record deleted successfully!" });
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 // POST: api/MemberData/donation
 exports.createDonation = async (req, res) => {
     try {
+        await ensureAssociationFeesSheet();
         const value = req.body;
         let maxId = "-";
 
@@ -347,9 +425,39 @@ exports.createDonation = async (req, res) => {
         const mobile = value.Mobile || value.mobile;
         const paymentNo = value.PaymentNo || value.paymentNo;
         const city = value.City || value.city;
+        const fromMonth = value.fromMonth;
+        const fromYear = value.fromYear;
+        const toMonth = value.toMonth;
+        const toYear = value.toYear;
 
         if (!generateOnly) {
-            const donationRows = await googleSheets.getRows(SHEETS.DONATION);
+            const donationRows = await googleSheets.getRows(SHEETS.ASSOCIATION_FEES);
+
+            // Validation: Check for existing overlapping periods for this member
+            const memberIdStr = memberId ? memberId.toString() : '';
+            const newStart = parseInt(fromYear) * 12 + parseInt(fromMonth);
+            const newEnd = parseInt(toYear) * 12 + parseInt(toMonth);
+
+            const duplicate = donationRows.find(row => {
+                if (row.memberId !== memberIdStr) return false;
+                
+                const existingStart = parseInt(row.fromYear) * 12 + parseInt(row.fromMonth);
+                const existingEnd = parseInt(row.toYear) * 12 + parseInt(row.toMonth);
+
+                // Overlap check
+                return (newStart <= existingEnd) && (existingStart <= newEnd);
+            });
+
+            if (duplicate) {
+                const monthsNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const startLabel = `${monthsNames[duplicate.fromMonth]} ${duplicate.fromYear}`;
+                const endLabel = `${monthsNames[duplicate.toMonth]} ${duplicate.toYear}`;
+                
+                return res.status(400).json({ 
+                    message: `Fee already paid for period: ${startLabel} to ${endLabel}` 
+                });
+            }
+
             const nextId = donationRows.reduce((max, row) => Math.max(max, parseInt(row.id) || 0), 0) + 1;
 
             const paymentType = paymentTypeStr === "રોકડા" ? "cash" : (paymentTypeStr === "UPI" ? "upi" : (paymentTypeStr === "ચેક" ? "cheque" : null));
@@ -364,10 +472,14 @@ exports.createDonation = async (req, res) => {
                 paymentType: paymentType,
                 paymentNo: paymentNo || '',
                 paymentDate: now,
-                city: city
+                city: city,
+                fromMonth: fromMonth !== undefined ? fromMonth.toString() : '',
+                fromYear: fromYear !== undefined ? fromYear.toString() : '',
+                toMonth: toMonth !== undefined ? toMonth.toString() : '',
+                toYear: toYear !== undefined ? toYear.toString() : ''
             };
 
-            await googleSheets.addRow(SHEETS.DONATION, newDonation);
+            await googleSheets.addRow(SHEETS.ASSOCIATION_FEES, newDonation);
             maxId = nextId;
         }
 

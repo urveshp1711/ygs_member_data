@@ -12,10 +12,21 @@ import { environment } from 'src/environments/environment';
 export class MemberService {
 
     APIHost = environment.APIHost;
+    private selectedYearSubject = new BehaviorSubject<any>(null);
+    selectedYear$ = this.selectedYearSubject.asObservable();
+
     constructor(
         public http: HttpClient,
         public router: Router
     ) { }
+
+    setSelectedYear(year: any) {
+        this.selectedYearSubject.next(year);
+    }
+
+    getSelectedYear() {
+        return this.selectedYearSubject.value;
+    }
 
     getMemberMaster() {
         return this.http.get<any[]>(`${this.APIHost}/api/memberdata`).pipe(

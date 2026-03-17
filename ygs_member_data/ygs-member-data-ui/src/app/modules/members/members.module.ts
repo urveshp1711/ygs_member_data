@@ -9,6 +9,8 @@ import { InvoiceGeneratorComponent } from '../../components/invoice-generator/in
 import { GetFamiltyTreeComponent } from '../../components/get-familty-tree/get-familty-tree.component';
 import { AppFamilyNodeComponent } from '../../components/common/app-family-node/app-family-node.component';
 import { DonationSummaryComponent } from '../../components/donation-summary/donation-summary.component';
+import { DonationOverviewComponent } from '../../components/donation-summary/overview/overview.component';
+import { DonationTransactionsComponent } from '../../components/donation-summary/transactions/transactions.component';
 
 @NgModule({
   declarations: [MemberDataComponent, InvoiceGeneratorComponent, GetFamiltyTreeComponent, AppFamilyNodeComponent, DonationSummaryComponent],
@@ -18,6 +20,8 @@ import { DonationSummaryComponent } from '../../components/donation-summary/dona
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
+    DonationOverviewComponent,
+    DonationTransactionsComponent
   ],
   exports: [
     MemberDataComponent,

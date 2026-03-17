@@ -9,25 +9,35 @@
 
     <div class="card p-2 mb-3 shadow-sm bg-white border-0">
         <div class="horizontal-submenu">
-            <ul class="nav nav-pills gap-2">
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="overview" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}">Overview</a>
+            <ul class="nav nav-pills gap-2 align-items-center">
+                <li class="nav-item d-flex align-items-center px-3 text-muted fw-bold small text-uppercase">
+                    <i class="bi bi-calendar3 me-2"></i> Select Year:
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="transactions" routerLinkActive="active">Transactions</a>
+                <li class="nav-item" *ngFor="let s of donationSummary">
+                    <a class="nav-link" [class.active]="selectedDonarYear === s.year" (click)="selectYear(s.year)" style="cursor: pointer;">
+                        {{ s.year }}
+                    </a>
                 </li>
                 <li class="nav-item ms-auto">
-                    <button class="btn btn-sm btn-outline-primary" (click)="exportTableData()">
-                        <i class="bi bi-download me-1"></i> Export Data
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="exportTableData()">
+                        <i class="bi bi-download me-1"></i> Export Excel
                     </button>
                 </li>
             </ul>
         </div>
     </div>
 
-    <!-- Content Area for Child Routes -->
-    <div class="donation-content-area">
+    <!-- Content Area for Selected Year -->
+    <div class="donation-content-area" *ngIf="selectedDonarYear">
+        <div class="d-flex gap-3 mb-4">
+            <a class="btn btn-sm" routerLink="overview" routerLinkActive="btn-primary" [class.btn-light]="!overviewActive.isActive" #overviewActive="routerLinkActive">
+                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Month-wise Report
+            </a>
+            <a class="btn btn-sm" routerLink="transactions" routerLinkActive="btn-primary" [class.btn-light]="!transActive.isActive" #transActive="routerLinkActive">
+                <i class="bi bi-list-ul me-1"></i> Transaction List
+            </a>
+        </div>
+
         <router-outlet></router-outlet>
     </div>
 </div>

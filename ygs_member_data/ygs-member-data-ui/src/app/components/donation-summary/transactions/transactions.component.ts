@@ -18,100 +18,110 @@ import { ToastService } from '../../../services/toast-service';
         <div>
             <h5 class="m-0 fw-bold text-dark d-flex align-items-center gap-2">
                 <i class="bi bi-list-task text-primary"></i>
-                Donation Transactions
+                Fee Transactions - Full List
             </h5>
-            <p class="text-muted small mb-0 mt-1">Detailed view of all donations for the selected period</p>
-        </div>
-        
-        <div class="d-flex align-items-center gap-3 filter-controls">
-            <div class="select-wrapper">
-                <span class="label">Select Year</span>
-                <select class="form-select form-select-sm custom-select" (change)="onYearChange($any($event.target).value)" [value]="selectedYear">
-                    <option *ngFor="let s of donationSummary" [value]="s.year">{{s.year}}</option>
-                </select>
-            </div>
+            <p class="text-muted small mb-0 mt-1">Showing all payments for the year {{selectedYear}}</p>
         </div>
     </div>
 
     <div class="table-responsive custom-table-container">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
-                    <th scope="col" class="text-center">#</th>
-                    <th scope="col" style="cursor: pointer;" (click)="onSort('Member Id')">
+                    <th scope="col" class="text-center" style="width: 60px;">#</th>
+                    <th scope="col" style="cursor: pointer; width: 120px;" (click)="onSort('Member Id')">
                         House No.
                         <i class="bi" [ngClass]="{'bi-sort-alpha-down': sortColumn === 'Member Id' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Member Id' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Member Id'}" class="sort-icon"></i>
                     </th>
                     <th scope="col" style="cursor: pointer;" (click)="onSort('Name')">
-                        Donar Name
+                        Member Name
                         <i class="bi" [ngClass]="{'bi-sort-alpha-down': sortColumn === 'Name' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Name' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Name'}" class="sort-icon"></i>
                     </th>
-                    <th scope="col" style="cursor: pointer;" (click)="onSort('City')">
+                    <th scope="col" style="cursor: pointer; width: 150px;" (click)="onSort('City')">
                         City
                         <i class="bi" [ngClass]="{'bi-sort-alpha-down': sortColumn === 'City' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'City' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'City'}" class="sort-icon"></i>
                     </th>
-                    <th scope="col" style="cursor: pointer;" (click)="onSort('PaymentDate')">
+                    <th scope="col" style="cursor: pointer; width: 180px;" (click)="onSort('PaymentDate')">
                         Payment Date
                         <i class="bi" [ngClass]="{'bi-sort-numeric-down': sortColumn === 'PaymentDate' && sortDirection === 'asc', 'bi-sort-numeric-up': sortColumn === 'PaymentDate' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'PaymentDate'}" class="sort-icon"></i>
                     </th>
-                    <th scope="col" class="text-center">Method</th>
-                    <th scope="col" class="text-end" style="cursor: pointer;" (click)="onSort('Amount')">
+                    <th scope="col" class="text-center" style="width: 100px;">Method</th>
+                    <th scope="col" class="text-end" style="cursor: pointer; width: 120px;" (click)="onSort('Amount')">
                         Amount
                         <i class="bi" [ngClass]="{'bi-sort-numeric-down': sortColumn === 'Amount' && sortDirection === 'asc', 'bi-sort-numeric-up': sortColumn === 'Amount' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Amount'}" class="sort-icon"></i>
                     </th>
-                    <th scope="col" class="text-center">Action</th>
+                    <th scope="col" class="text-center" style="width: 80px;">Action</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr *ngFor="let donation of donationData$ | async; let i = index" class="transaction-row">
-                    <td class="text-center text-muted small">{{ i + 1 }}</td>
-                    <td class="fw-bold text-primary small">{{ donation['Member Id'] }}</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm me-3" [style.background-color]="getAvatarColor(donation.Name)">
-                                {{donation.Name.charAt(0)}}
+            <ng-container *ngFor="let group of groupedTransactions">
+                <tbody class="month-group-border">
+                    <tr class="month-header-row bg-light">
+                        <td colspan="8" class="py-2 px-4 shadow-sm">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-check text-primary"></i>
+                                <span class="fw-bold text-dark text-uppercase small letter-spacing-1">{{ group.monthName }}</span>
+                                <span class="badge bg-white text-primary border rounded-pill ms-2 px-3">{{ group.transactions.length }} entries</span>
+                                <div class="ms-auto fw-bold text-primary">Total: ₹ {{ group.totalAmount.toLocaleString() }}</div>
                             </div>
-                            <div>
-                                <div class="fw-bold text-dark">{{ donation.Name }}</div>
-                                <div class="text-muted extra-small">{{ donation.Mobile }}</div>
+                        </td>
+                    </tr>
+                    <tr *ngFor="let donation of group.transactions; let i = index" class="transaction-row">
+                        <td class="text-center text-muted small">{{ i + 1 }}</td>
+                        <td class="fw-bold text-primary small">{{ donation['Member Id'] }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3" [style.background-color]="getAvatarColor(donation.Name)">
+                                    {{donation.Name.charAt(0)}}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ donation.Name }}</div>
+                                    <div class="text-muted extra-small">{{ donation.Mobile }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-geo-alt text-muted"></i>
-                            {{ donation.City }}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex flex-column">
-                            <span class="fw-medium">{{ donation.PaymentDate | date: 'dd MMM, yyyy' }}</span>
-                            <span class="text-muted extra-small">Ref: {{ donation.PaymentNo || 'N/A' }}</span>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <span class="payment-badge" [ngClass]="donation.PaymentType.toLowerCase()">
-                            {{ donation.PaymentType }}
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        <span class="amount-text">₹{{ donation.Amount.toLocaleString() }}</span>
-                    </td>
-                    <td class="text-center">
-                        <div class="action-buttons">
-                            <button class="btn-action delete" (click)="onDelete(donation)" title="Delete Transaction">
-                                <i class="bi bi-trash3"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <tr *ngIf="!(donationData$ | async)?.length">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-geo-alt text-muted"></i>
+                                {{ donation.City }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-medium">{{ donation.PaymentDate | date: 'dd MMM, yyyy' }}</span>
+                                <span class="text-muted extra-small">Ref: {{ donation.PaymentNo || 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="payment-badge" [ngClass]="donation.PaymentType.toLowerCase()">
+                                {{ donation.PaymentType }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="amount-text">₹{{ donation.DisplayAmount.toLocaleString() }}</span>
+                                <span class="extra-small text-muted" *ngIf="donation.Amount !== donation.DisplayAmount">
+                                    of ₹{{ donation.Amount.toLocaleString() }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-buttons">
+                                <button class="btn-action delete" (click)="onDelete(donation)" title="Delete Transaction">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </ng-container>
+            <tbody *ngIf="!groupedTransactions.length">
+                <tr>
                     <td colspan="8" class="text-center py-5 empty-state">
                         <div class="empty-icon-wrapper">
                             <i class="bi bi-clipboard-x fs-1"></i>
                         </div>
                         <h6 class="mt-3 fw-bold">No transactions found</h6>
-                        <p class="text-muted small">We couldn't find any donation records for {{selectedYear}}</p>
+                        <p class="text-muted small">We couldn't find any fee records for {{selectedYear}}</p>
                     </td>
                 </tr>
             </tbody>
@@ -243,17 +253,28 @@ import { ToastService } from '../../../services/toast-service';
         margin: 0 auto;
         color: #cbd5e1;
     }
+    .month-header-row td {
+        background-color: #f8fafc !important;
+        border-top: 2px solid #e2e8f0;
+    }
+    .month-group-border {
+        border-bottom: 2px solid #f1f5f9;
+    }
+    .letter-spacing-1 {
+        letter-spacing: 1px;
+    }
 </style>
   `,
     styleUrl: '../donation-summary.component.scss'
 })
 export class DonationTransactionsComponent implements OnInit {
+
     memberDataService = inject(MemberService);
     toastService = inject(ToastService);
 
     loading = false;
-    donationSummary: any[] = [];
     transactions: any[] = [];
+    groupedTransactions: { monthName: string, transactions: any[], totalAmount: number }[] = [];
     donationData$: Observable<any[]> | undefined;
     selectedYear: any = null;
 
@@ -261,19 +282,65 @@ export class DonationTransactionsComponent implements OnInit {
     sortDirection: 'asc' | 'desc' = 'desc';
 
     ngOnInit() {
-        this.loadSummaryAndDefaultYear();
+        this.memberDataService.selectedYear$.subscribe(year => {
+            if (year) {
+                this.selectedYear = year;
+                this.onYearChange(year);
+            }
+        });
     }
 
-    loadSummaryAndDefaultYear() {
-        this.loading = true;
-        this.memberDataService.getTotalDonation().subscribe(data => {
-            this.donationSummary = data;
-            if (this.donationSummary.length > 0) {
-                this.selectedYear = this.donationSummary[0].year;
-                this.onYearChange(this.selectedYear);
+    getMonthName(dateString: string): string {
+        const date = new Date(dateString);
+        return date.toLocaleString('en-IN', { month: 'long' });
+    }
+
+    applyGrouping() {
+        const groups: { [key: string]: { monthName: string, transactions: any[], totalAmount: number, monthIndex: number } } = {};
+        
+        this.transactions.forEach(t => {
+            const fromMonth = parseInt(t.fromMonth);
+            const fromYear = parseInt(t.fromYear);
+            const toMonth = parseInt(t.toMonth);
+            const toYear = parseInt(t.toYear);
+            const amount = parseFloat(t.Amount) || 0;
+
+            if (isNaN(fromMonth) || isNaN(fromYear) || isNaN(toMonth) || isNaN(toYear)) {
+                // Fallback to PaymentDate if months are missing (for older records)
+                const date = new Date(t.PaymentDate);
+                const monthName = this.getMonthName(t.PaymentDate);
+                const monthIndex = date.getMonth();
+                this.addToGroup(groups, monthName, monthIndex, t, amount);
+                return;
             }
-            this.loading = false;
+
+            const startDate = new Date(fromYear, fromMonth, 1);
+            const endDate = new Date(toYear, toMonth, 1);
+            const monthCount = (toYear - fromYear) * 12 + (toMonth - fromMonth) + 1;
+            const amountPerMonth = amount / monthCount;
+
+            let current = new Date(startDate);
+            while (current <= endDate) {
+                // Only show months that match the current selected year tab
+                if (current.getFullYear() === this.selectedYear) {
+                    const mIndex = current.getMonth();
+                    const mName = new Date(2000, mIndex).toLocaleString('en-IN', { month: 'long' });
+                    this.addToGroup(groups, mName, mIndex, t, amountPerMonth);
+                }
+                current.setMonth(current.getMonth() + 1);
+            }
         });
+
+        // Convert to array and sort by month index
+        this.groupedTransactions = Object.values(groups).sort((a, b) => a.monthIndex - b.monthIndex);
+    }
+
+    private addToGroup(groups: any, monthName: string, monthIndex: number, transaction: any, amount: number) {
+        if (!groups[monthName]) {
+            groups[monthName] = { monthName, transactions: [], totalAmount: 0, monthIndex };
+        }
+        groups[monthName].transactions.push({ ...transaction, DisplayAmount: amount });
+        groups[monthName].totalAmount += amount;
     }
 
     onSort(column: string) {
@@ -308,6 +375,7 @@ export class DonationTransactionsComponent implements OnInit {
                 return this.sortDirection === 'asc' ? res : -res;
             });
         }
+        this.applyGrouping();
         this.donationData$ = of([...this.transactions]);
     }
 
@@ -322,14 +390,14 @@ export class DonationTransactionsComponent implements OnInit {
     }
 
     onDelete(donation: any) {
-        if (confirm(`Are you sure you want to delete donation entry for ${donation.Name}?`)) {
+        if (confirm(`Are you sure you want to delete fee entry for ${donation.Name}?`)) {
             this.loading = true;
             this.memberDataService.deleteDonation(donation.id).subscribe((res: any) => {
                 const response = typeof res === 'string' ? JSON.parse(res) : res;
                 this.toastService.show({ template: response.message || 'Record deleted successfully', classname: 'bg-success text-light', delay: 5000 });
                 this.onYearChange(this.selectedYear);
             }, error => {
-                const errorMsg = error.error?.message || 'Failed to delete donation record.';
+                const errorMsg = error.error?.message || 'Failed to delete fee record.';
                 this.toastService.show({ template: errorMsg, classname: 'bg-danger text-light', delay: 5000 });
                 this.loading = false;
             });

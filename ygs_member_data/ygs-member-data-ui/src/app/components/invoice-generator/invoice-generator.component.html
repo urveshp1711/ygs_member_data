@@ -17,7 +17,7 @@
                         <button type="button" class="btn btn-summary-inline d-flex align-items-center gap-2"
                             (click)="openSummary()">
                             <i class="bi bi-clock-history"></i>
-                            Donation History
+                            Fee History
                         </button>
                     </div>
 
@@ -28,7 +28,7 @@
                                 <div class="input-wrapper">
                                     <i class="bi bi-hash icon"></i>
                                     <input id="memberId" formControlName="memberId" class="form-control-custom pe-5"
-                                        placeholder="Enter House No." (keydown.enter)="searchMember()" />
+                                        placeholder="Enter House No." (keydown.enter)="searchMember($event)" />
                                     <i *ngIf="!searchingMember" class="bi bi-search search-icon" (click)="searchMember()" title="Search Member"></i>
                                     <div *ngIf="searchingMember" class="search-spinner-container">
                                         <div class="search-spinner"></div>
@@ -164,7 +164,7 @@
                             (click)="generateSlip()">
                             <i class="bi bi-file-earmark-arrow-down"></i> Preview & Generate
                         </button>
-                        <button type="submit" class="btn-modern primary" [disabled]="!memberForm?.valid"
+                        <button type="button" class="btn-modern primary" [disabled]="!memberForm?.valid"
                             (click)="onSubmit()">
                             <i class="bi bi-cloud-check"></i> Save & Generate Fee Receipt
                         </button>
@@ -177,7 +177,7 @@
     <!-- Donation Summary Modal Template -->
     <ng-template #content let-modal>
         <div class="modal-header-custom p-4 bg-light border-bottom">
-            <h4 class="modal-title fw-bold text-dark m-0">Donation History & Summary</h4>
+            <h4 class="modal-title fw-bold text-dark m-0">Fee History * Summary</h4>
             <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')"></button>
         </div>
         <div class="modal-body p-4 bg-white">
@@ -186,9 +186,9 @@
                     <div class="col-md-12">
                         <div class="summary-card shadow-sm">
                             <div class="summary-header d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="fw-bold mb-0">Donation Year {{ summary.year || 'N/A' }}</h5>
+                                <h5 class="fw-bold mb-0">Fee Year {{ summary.year || 'N/A' }}</h5>
                                 <button class="btn-icon-circular" (click)="viewYearwiseSummary(summary.year)"
-                                    [title]="expandSummaryDetails ? 'Hide Donars' : 'View Donars'">
+                                    [title]="expandSummaryDetails ? 'Hide Members' : 'View Members'">
                                     <i class="bi"
                                         [ngClass]="expandSummaryDetails && selectedDonarYear === summary.year ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                                 </button>
@@ -202,14 +202,14 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="summary-stat success">
-                                        <span class="stat-label">Total Donation</span>
+                                        <span class="stat-label">Total Fees</span>
                                         <span class="stat-value">₹{{ (summary.totalDonation || 0).toLocaleString()
                                             }}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="summary-stat info">
-                                        <span class="stat-label">Avg. Donation</span>
+                                        <span class="stat-label">Avg. Fee</span>
                                         <span class="stat-value">₹{{ (summary.avgDonation || 0).toFixed(2) }}</span>
                                     </div>
                                 </div>
@@ -222,7 +222,7 @@
             <!-- Detailed Donar List -->
             <div *ngIf="expandSummaryDetails" class="detailed-list mt-4 animate-slide-down">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold text-primary mb-0">List of Donars - {{selectedDonarYear}}</h6>
+                    <h6 class="fw-bold text-primary mb-0">Member Payment Details - {{selectedDonarYear}}</h6>
                     <div *ngIf="loadingTransactions" class="d-flex align-items-center gap-2">
                         <div class="search-spinner"></div>
                         <span class="text-muted small">Loading...</span>
@@ -236,7 +236,7 @@
                                 <th class="text-center">#</th>
                                 <th>House No.</th>
                                 <th>Full Name</th>
-                                <th>City</th>
+                                <th>Fee Period</th>
                                 <th class="text-center">Method</th>
                                 <th class="text-end">Amount</th>
                             </tr>
@@ -248,6 +248,7 @@
                                     <td class="text-center text-muted small">{{ i + 1 }}</td>
                                     <td class="fw-bold text-primary">{{ donation['Member Id'] }}</td>
                                     <td class="fw-bold">{{ donation.Name }}</td>
+                                    <td class="text-muted small">{{ donation.FeePeriod }}</td>
                                     <td class="text-center">
                                         <span class="badge-custom" [ngClass]="donation.PaymentType.toLowerCase()">
                                             {{ donation.PaymentType }}

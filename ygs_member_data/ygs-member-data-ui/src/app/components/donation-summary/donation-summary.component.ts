@@ -23,7 +23,7 @@ export class DonationSummaryComponent {
   donationSummary: any[] = [];
   memberForm: FormGroup | undefined;
   openSummaryModal = false;
-  expandSummaryDetails = false
+  expandSummaryDetails = false;
 
   private modalService = inject(NgbModal);
   closeResult: WritableSignal<string> = signal('');
@@ -39,53 +39,33 @@ export class DonationSummaryComponent {
     this.getTotalDonationSummary();
   }
 
-  viewYearwiseSummary(year: any) {
-
-    if (year != this.selectedDonarYear) {
-
-      this.selectedDonarYear = year;
-
-      this.expandSummaryDetails = !this.expandSummaryDetails ? true : this.expandSummaryDetails;
-      this.loading = true;
-      this.donationData$ = this.memberDataService.getDonationData(year).pipe(
-        tap(data => {
-          let dialogElement: HTMLElement | null = document.querySelector('.modal-content');
-          if (dialogElement) dialogElement.style.overflow = 'auto';
-          this.loading = false;
-        })
-      );
-    } else {
-      this.expandSummaryDetails = !this.expandSummaryDetails;
-    }
-
-  }
-
-
   getTotalDonationSummary() {
     this.loading = true;
     this.memberDataService.getTotalDonation()
       .pipe(
         tap(data => {
-          // Here we push the data into the array
-          if ((data || []).length > 0) {
-            this.donationSummary = data;
-            this.donationSummary.forEach((item: any) => {
-              //item.year = moment(item.year).format('DD-MM-YYYY');
-            });
+          this.donationSummary = data || [];
+          if (this.donationSummary.length > 0) {
+            const currentSelected = this.memberDataService.getSelectedYear();
+            if (!currentSelected) {
+              this.selectedDonarYear = this.donationSummary[0].year;
+              this.memberDataService.setSelectedYear(this.selectedDonarYear);
+            } else {
+              this.selectedDonarYear = currentSelected;
+            }
           }
-          else {
-            this.donationSummary = [{
-              totalDonation: 0,
-              totalEntries: 0,
-              avgDonation: 0,
-              year: null
-            }];
-          }
-
-          this.loading = false;          
-
+          this.loading = false;
         })
       ).subscribe();
+  }
+
+  selectYear(year: any) {
+    this.selectedDonarYear = year;
+    this.memberDataService.setSelectedYear(year);
+  }
+
+  getSelectedYearData() {
+    return this.donationSummary.find(s => s.year === this.selectedDonarYear);
   }
 
   exportTableData(): void {

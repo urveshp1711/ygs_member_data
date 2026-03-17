@@ -114,7 +114,7 @@ export class InvoiceGeneratorComponent {
     this.memberForm?.get('memberId')?.valueChanges.pipe(
       debounceTime(500),
       distinctUntilChanged(),
-      filter(value => !!value)
+      filter(value => value && value.toString().length >= 4)
     ).subscribe(value => {
       this.searchMember();
     });
@@ -288,6 +288,22 @@ export class InvoiceGeneratorComponent {
         },
         (error) => {
           console.error('Download error:', error);
+          this.loading = false;
+          
+          if (error.error instanceof Blob) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              try {
+                const errorData = JSON.parse(reader.result as string);
+                this.toastService.show({ template: errorData.message || 'Validation failed', classname: 'bg-danger text-light', delay: 5000 });
+              } catch (e) {
+                this.toastService.show({ template: 'An error occurred while generating the receipt.', classname: 'bg-danger text-light', delay: 5000 });
+              }
+            };
+            reader.readAsText(error.error);
+          } else {
+            this.toastService.show({ template: 'An error occurred while connecting to the server.', classname: 'bg-danger text-light', delay: 5000 });
+          }
         }
       );
   }
@@ -303,7 +319,11 @@ export class InvoiceGeneratorComponent {
     }
   }
 
-  searchMember() {
+  searchMember(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     const memberId = this.memberForm?.get('memberId')?.value;
     this.searchingMember = true;
     this.memberDataService.getMemberByMemberId(memberId).subscribe({
