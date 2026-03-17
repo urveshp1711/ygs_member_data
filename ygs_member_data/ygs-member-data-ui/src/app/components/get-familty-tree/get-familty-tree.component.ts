@@ -1,12 +1,13 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-get-familty-tree',
   templateUrl: './get-familty-tree.component.html',
-  styleUrl: './get-familty-tree.component.scss'
+  styleUrl: './get-familty-tree.component.scss',
+  standalone: false
 })
-export class GetFamiltyTreeComponent implements OnInit {
+export class GetFamiltyTreeComponent implements OnInit, AfterViewInit {
 
   @ViewChild('container', { static: true }) container: any;
 

@@ -1,13 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberService } from '~/services/member.service';
+import { MemberService } from '../../../services/member.service';
 import { Observable, tap, of } from 'rxjs';
-import { ToastService } from '~/services/toast-service';
+import { ToastService } from '../../../services/toast-service';
 
 @Component({
     selector: 'app-donation-transactions',
-    standalone: true,
-    imports: [CommonModule],
+    standalone: false,
     template: `
 <div *ngIf="loading" class="loader-container">
     <div class="loader"></div>

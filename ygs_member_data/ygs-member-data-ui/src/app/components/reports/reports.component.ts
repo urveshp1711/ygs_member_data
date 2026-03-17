@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { MemberService } from '~/services/member.service';
-import { ExportService } from '~/services/export.service';
+import { MemberService } from '../../services/member.service';
+import { ExportService } from '../../services/export.service';
 import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
-  styleUrl: './reports.component.scss'
+  styleUrl: './reports.component.scss',
+  standalone: false
 })
 export class ReportsComponent {
   private memberService = inject(MemberService);

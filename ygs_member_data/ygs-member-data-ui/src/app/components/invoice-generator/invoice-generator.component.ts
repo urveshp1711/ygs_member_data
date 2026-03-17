@@ -4,14 +4,15 @@ import { Router } from '@angular/router';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import { Observable, tap, of } from 'rxjs';
-import { ExportService } from '~/services/export.service';
-import { MemberService } from '~/services/member.service';
-import { ToastService } from '~/services/toast-service';
+import { ExportService } from '../../services/export.service';
+import { MemberService } from '../../services/member.service';
+import { ToastService } from '../../services/toast-service';
 
 @Component({
   selector: 'app-invoice-generator',
   templateUrl: './invoice-generator.component.html',
-  styleUrl: './invoice-generator.component.scss'
+  styleUrl: './invoice-generator.component.scss',
+  standalone: false
 })
 export class InvoiceGeneratorComponent {
 

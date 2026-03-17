@@ -1,13 +1,12 @@
 import { Component, inject, signal, TemplateRef, ViewChild, WritableSignal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, of, tap } from 'rxjs';
-import { MemberService } from '~/services/member.service';
+import { MemberService } from '../../../services/member.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-donation-overview',
-    standalone: true,
-    imports: [CommonModule],
+    standalone: false,
     template: `
 <!-- Loader -->
 <div *ngIf="loading" class="loader-container">

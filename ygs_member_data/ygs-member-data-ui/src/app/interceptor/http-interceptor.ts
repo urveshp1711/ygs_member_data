@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import * as moment from 'moment';
-import { sessionPeriod } from '~/services/constant';
+import { sessionPeriod } from '../services/constant';
 import { Router } from '@angular/router';
 
 @Injectable()

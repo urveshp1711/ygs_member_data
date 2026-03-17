@@ -1,8 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { ToastService } from '~/services/toast-service';
+import { Component, inject, TemplateRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbToast, NgbToastHeader } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../services/toast-service';
 
 @Component({
     selector: 'app-toasts',
+    standalone: true,
+    imports: [CommonModule, NgbToast, NgbToastHeader],
     template: `
 		<ngb-toast
 			*ngFor="let toast of toastService.toasts"
@@ -24,6 +28,6 @@ export class ToastsContainer {
     toastService = inject(ToastService);
 
     isTemplate(toast: any) {
-        return toast.template instanceof Object;
+        return toast.template instanceof TemplateRef;
     }
 }

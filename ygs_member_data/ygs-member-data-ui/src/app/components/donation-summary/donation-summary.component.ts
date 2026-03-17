@@ -3,14 +3,15 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, tap } from 'rxjs';
-import { ExportService } from '~/services/export.service';
-import { MemberService } from '~/services/member.service';
+import { ExportService } from '../../services/export.service';
+import { MemberService } from '../../services/member.service';
 
 
 @Component({
   selector: 'app-donation-summary',
   templateUrl: './donation-summary.component.html',
-  styleUrl: './donation-summary.component.scss'
+  styleUrl: './donation-summary.component.scss',
+  standalone: false
 })
 export class DonationSummaryComponent {
 

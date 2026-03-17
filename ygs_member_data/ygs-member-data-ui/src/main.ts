@@ -20,11 +20,3 @@ appConfig.applicationInsight = {
 
 platformBrowserDynamic([{ provide: APP_CONFIG, useValue: appConfig }])
     .bootstrapModule(AppModule).catch(err => console.error(err));
-
-//fetch("api/configuration/web").then( async res =>{
-//  const appConfig =  await res.json();
-
-//  platformBrowserDynamic([{ provide: APP_CONFIG, useValue: appConfig }])
-//  .bootstrapModule(AppModule).catch(err => console.error(err));
-//})
-

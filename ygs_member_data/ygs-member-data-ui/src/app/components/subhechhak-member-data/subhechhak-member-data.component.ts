@@ -4,16 +4,17 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { BehaviorSubject, merge, Observable, of, OperatorFunction, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, finalize, map, startWith, tap } from 'rxjs/operators';
 import { ModalDismissReasons, NgbDate, NgbDateStruct, NgbModal, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
-import { MemberService } from '~/services/member.service';
+import { MemberService } from '../../services/member.service';
 import * as moment from 'moment';
-import { ToastService } from '~/services/toast-service';
-import { ExportService } from '~/services/export.service';
+import { ToastService } from '../../services/toast-service';
+import { ExportService } from '../../services/export.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-subhechhak-member-data',
   templateUrl: './subhechhak-member-data.component.html',
-  styleUrl: './subhechhak-member-data.component.scss'
+  styleUrl: './subhechhak-member-data.component.scss',
+  standalone: false
 })
 export class SubhechhakMemberDataComponent {
 
@@ -143,11 +144,11 @@ export class SubhechhakMemberDataComponent {
       return this.members.filter((member) => {
         const term = text.toLowerCase();
         return (
-          (member.Name ? member.Name.toLowerCase().contains(term) : false) ||
-          (member.Mobile ? member.Mobile.toLowerCase().contains(term) : false) ||
-          (member.Relation ? member.Relation.toLowerCase().contains(term) : false) ||
-          (member.Profession ? member.Profession.toLowerCase().contains(term) : false) ||
-          (member['Member Id'] ? member['Member Id'].toLowerCase().contains(term) : false)
+          (member.Name ? member.Name.toLowerCase().includes(term) : false) ||
+          (member.Mobile ? member.Mobile.toLowerCase().includes(term) : false) ||
+          (member.Relation ? member.Relation.toLowerCase().includes(term) : false) ||
+          (member.Profession ? member.Profession.toLowerCase().includes(term) : false) ||
+          (member['Member Id'] ? member['Member Id'].toLowerCase().includes(term) : false)
         );
       });
     }
