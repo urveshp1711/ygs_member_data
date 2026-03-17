@@ -209,11 +209,6 @@ exports.getTotalDonation = async (req, res) => {
                     };
                 }
 
-                // If this is the FIRST month of the payment record, we count it as an "entry" for the year summary
-                // to avoid double counting entries in the main stat cards, but we track amount in all months.
-                // Or better: an entry is a payment record. So totalEntries = rows.length. 
-                // But for the month breakdown, we show how many payments covers that month.
-                
                 aggregation[y].months[m].totalEntries += 1;
                 aggregation[y].months[m].totalDonation += amountPerMonth;
                 
