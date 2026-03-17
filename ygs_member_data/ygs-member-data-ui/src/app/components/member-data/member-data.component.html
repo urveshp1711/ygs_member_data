@@ -34,7 +34,7 @@
 			<thead>
 				<tr style="text-align: center;">
 					<th scope="col" (click)="onSort('Member Id')" style="cursor: pointer;">
-						Member Id
+						House No.
 						<i class="bi"
 							[ngClass]="{'bi-sort-alpha-down': sortColumn === 'Member Id' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Member Id' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Member Id'}"
 							style="font-size: 0.8rem; margin-left: 4px;"></i>
@@ -84,7 +84,7 @@
 					(focusout)="editingRowId === member.Id && onRowFocusOut($event, member)"
 					(keyup.enter)="editingRowId === member.Id && updateInlineRow(member)"
 					(keyup.escape)="editingRowId === member.Id && cancelInlineEdit(member)">
-					<td style="text-align: center;" data-field="Member Id">
+					<td style="text-align: center;" data-field="House No.">
 						<input *ngIf="editingRowId === member.Id; else memberIdView" class="form-control text-center"
 							type="text" [(ngModel)]="member['Member Id']" [id]="'inline-edit-Member-Id-' + member.Id" readonly />
 						<ng-template #memberIdView>{{ member['Member Id'] }}</ng-template>
@@ -128,8 +128,6 @@
 						<div class="d-flex justify-content-center">
 							<i class="bi bi-save p-1 icon-style text-success" title="Save member"
 								(click)="updateInlineRow(member)"></i>
-							<i class="bi bi-x-circle p-1 icon-style text-danger" title="Cancel editing"
-								(click)="cancelInlineEdit(member)"></i>
 							<ng-container *ngIf="editingRowId !== member.Id">
 								<i class="bi bi-pencil p-1 icon-style text-primary" title="Inline Edit"
 									(click)="startInlineEdit(member)"></i>

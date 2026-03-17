@@ -12,7 +12,7 @@
                     <div class="section-title mb-4 d-flex justify-content-between align-items-center">
                         <div>
                             <i class="bi bi-person-badge me-2"></i>
-                            Donar Information
+                            Association Fees
                         </div>
                         <button type="button" class="btn btn-summary-inline d-flex align-items-center gap-2"
                             (click)="openSummary()">
@@ -24,11 +24,11 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <div class="input-group-custom">
-                                <label for="memberId" class="custom-label">Member ID</label>
+                                <label for="memberId" class="custom-label">House No. <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="bi bi-hash icon"></i>
                                     <input id="memberId" formControlName="memberId" class="form-control-custom pe-5"
-                                        placeholder="Enter Member ID (Optional)" (keydown.enter)="searchMember()" />
+                                        placeholder="Enter House No." (keydown.enter)="searchMember()" />
                                     <i *ngIf="!searchingMember" class="bi bi-search search-icon" (click)="searchMember()" title="Search Member"></i>
                                     <div *ngIf="searchingMember" class="search-spinner-container">
                                         <div class="search-spinner"></div>
@@ -43,16 +43,6 @@
                                     <i class="bi bi-person icon"></i>
                                     <input id="name" formControlName="name" class="form-control-custom"
                                         placeholder="Enter Donar Name" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="input-group-custom">
-                                <label for="city" class="custom-label">City/Town</label>
-                                <div class="input-wrapper">
-                                    <i class="bi bi-geo-alt icon"></i>
-                                    <input id="city" formControlName="city" class="form-control-custom"
-                                        placeholder="Enter City" />
                                 </div>
                             </div>
                         </div>
@@ -124,7 +114,7 @@
                         </button>
                         <button type="submit" class="btn-modern primary" [disabled]="!memberForm?.valid"
                             (click)="onSubmit()">
-                            <i class="bi bi-cloud-check"></i> Generate & Save Data
+                            <i class="bi bi-cloud-check"></i> Save & Generate Fee Receipt
                         </button>
                     </div>
                 </form>
@@ -192,7 +182,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th class="text-center">#</th>
-                                <th>Member ID</th>
+                                <th>House No.</th>
                                 <th>Full Name</th>
                                 <th>City</th>
                                 <th class="text-center">Method</th>
@@ -206,7 +196,6 @@
                                     <td class="text-center text-muted small">{{ i + 1 }}</td>
                                     <td class="fw-bold text-primary">{{ donation['Member Id'] }}</td>
                                     <td class="fw-bold">{{ donation.Name }}</td>
-                                    <td>{{ donation.City }}</td>
                                     <td class="text-center">
                                         <span class="badge-custom" [ngClass]="donation.PaymentType.toLowerCase()">
                                             {{ donation.PaymentType }}

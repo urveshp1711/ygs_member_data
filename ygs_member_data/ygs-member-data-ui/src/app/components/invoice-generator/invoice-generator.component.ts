@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
-import { Observable, tap, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, Observable, tap, of } from 'rxjs';
 import { ExportService } from '../../services/export.service';
 import { MemberService } from '../../services/member.service';
 import { ToastService } from '../../services/toast-service';
@@ -52,16 +52,26 @@ export class InvoiceGeneratorComponent {
   async ngOnInit() {
 
     this.memberForm = this.formBuilder.group({
-      memberId: [null],
+      memberId: [null, [Validators.required]],
       amount: [0, [Validators.required, Validators.min(1)]],
       name: ['', [Validators.required]],
       mobile: [''],
       paymentType: ['રોકડા', [Validators.required]],
-      paymentNo: [''],
-      city: ['']
+      paymentNo: ['']
     });
 
     this.memberForm.controls.paymentNo.disable();
+    this.setupAutoFetch();
+  }
+
+  setupAutoFetch() {
+    this.memberForm?.get('memberId')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter(value => !!value)
+    ).subscribe(value => {
+      this.searchMember();
+    });
   }
 
   getTotalDonationSummary() {
@@ -245,18 +255,12 @@ export class InvoiceGeneratorComponent {
 
   searchMember() {
     const memberId = this.memberForm?.get('memberId')?.value;
-    if (!memberId) {
-      this.toastService.show({ template: 'Please enter Member ID', classname: 'bg-warning text-dark', delay: 3000 });
-      return;
-    }
-
     this.searchingMember = true;
     this.memberDataService.getMemberByMemberId(memberId).subscribe({
       next: (data) => {
         if (data) {
           this.memberForm?.patchValue({
             name: data.Name,
-            city: data.City,
             mobile: data.Mobile
           });
           this.toastService.show({ template: 'Member details fetched successfully!', classname: 'bg-success text-light', delay: 3000 });

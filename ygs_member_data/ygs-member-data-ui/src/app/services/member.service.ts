@@ -23,11 +23,6 @@ export class MemberService {
         );
     }
 
-    getShubhechhakMemberMaster() {
-        return this.http.get<any[]>(`${this.APIHost}/api/memberdata/shubhechhak`).pipe(
-            map(response => response)
-        );
-    }
 
     getDonationData(year) {
         return this.http.get<any[]>(`${this.APIHost}/api/memberdata/donationData?year=${year}`).pipe(
@@ -52,14 +47,6 @@ export class MemberService {
         }
     }
 
-    addUpdateShubhechhakMemberInfo(id, request: any, isAdd) {
-        if (isAdd) {
-            return this.http.post(`${this.APIHost}/api/memberdata/shubhechhak`, request);
-        }
-        else {
-            return this.http.put(`${this.APIHost}/api/memberdata/shubhechhak/${id}`, request);
-        }
-    }
 
     getBloodGroupMaster() {
         return this.http.get<any[]>(`${this.APIHost}/api/memberdata/bloodGroup`).pipe(
@@ -95,9 +82,6 @@ export class MemberService {
         return this.http.delete(`${this.APIHost}/api/memberdata/${id}`);
     }
 
-    deleteShubhechhakMember(id) {
-        return this.http.delete(`${this.APIHost}/api/memberdata/shubhechhak/${id}`);
-    }
 
     deleteDonation(id) {
         return this.http.delete(`${this.APIHost}/api/memberdata/donation/${id}`);

@@ -42,7 +42,6 @@ This is a Node.js port of the C# API for UBS Member Data.
 
 - `GET /api/MemberData` - Get all members
 - `GET /api/MemberData/:id` - Get member by internal ID
-- `GET /api/MemberData/shubhechhak` - Get all Shubhechhak members
 - `GET /api/MemberData/bloodGroup` - Get distinct blood groups
 - `GET /api/MemberData/relation` - Get distinct relations
 - `GET /api/MemberData/profession` - Get distinct professions
@@ -51,10 +50,7 @@ This is a Node.js port of the C# API for UBS Member Data.
 - `GET /api/MemberData/donationData?year=YYYY` - Get donation list
 - `GET /api/MemberData/downloadDonationData` - Download donation list as Excel
 - `POST /api/MemberData` - Add a new member
-- `POST /api/MemberData/shubhechhak` - Add a new Shubhechhak member
 - `PUT /api/MemberData/:id` - Update a member
-- `PUT /api/MemberData/shubhechhak/:id` - Update a Shubhechhak member
 - `DELETE /api/MemberData/:id` - Delete a member
-- `DELETE /api/MemberData/shubhechhak/:id` - Delete a Shubhechhak member
 - `DELETE /api/MemberData/donation/:id` - Delete a donation record
 - `POST /api/MemberData/donation` - Add a donation and generate a PDF receipt

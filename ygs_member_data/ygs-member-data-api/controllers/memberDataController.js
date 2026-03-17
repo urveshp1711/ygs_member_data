@@ -24,7 +24,6 @@ const getUniqueValues = (rows, column) => {
 
 const SHEETS = {
     MEMBERS: 'Members',
-    SHUBHECHHAK: 'mst_subhechhak',
     DONATION: 'donation',
     CONFIG: 'configuration'
 };
@@ -119,39 +118,6 @@ exports.getMemberByMemberId = async (req, res) => {
             "City": member.city,
             "Mobile": member.mobile
         });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
-// GET: api/MemberData/shubhechhak
-exports.getShubhechhakMembers = async (req, res) => {
-    try {
-        let isActive = true;
-        try {
-            const configRows = await googleSheets.getRows(SHEETS.CONFIG);
-            isActive = configRows.find(c => c.key === 'active')?.value?.toLowerCase() !== 'false';
-        } catch (e) {
-            console.warn(`Configuration sheet "${SHEETS.CONFIG}" not found or error fetching. Defaulting to ACTIVE.`);
-        }
-
-        if (!isActive) return res.json([]);
-
-        const rows = await googleSheets.getRows(SHEETS.SHUBHECHHAK);
-        const formattedRows = rows.map(row => ({
-            "Id": row._id,
-            "Member Id": row.memberId,
-            "Name": row.name,
-            "Gender": row.gender,
-            "Date Of Birth": row.dateOfBirth,
-            "Birth Date": row.dob,
-            "Relation": row.relation,
-            "Married": row.marriagestatus,
-            "Profession": row.profession,
-            "Mobile": row.mobile
-        })).sort((a, b) => parseInt(a["Member Id"]) - parseInt(b["Member Id"]));
-
-        res.json(formattedRows);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -317,52 +283,6 @@ exports.addMember = async (req, res) => {
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// POST: api/MemberData/shubhechhak (Add Shubhechhak)
-exports.addShubhechhakMember = async (req, res) => {
-    try {
-        const value = req.body;
-        const rows = await googleSheets.getRows(SHEETS.SHUBHECHHAK);
-
-        let newMemberId = value.MemberId;
-        let isNew = false;
-
-        if (!newMemberId) {
-            const maxId = rows.reduce((max, row) => Math.max(max, parseInt(row.memberId) || 0), 0);
-            newMemberId = maxId + 1;
-            isNew = true;
-        }
-
-        const dob = formatDate(value.DateOfBirth);
-        const _id = Date.now().toString();
-
-        const newRow = {
-            _id: _id,
-            memberId: newMemberId.toString(),
-            name: value.Name,
-            relation: value.Relation,
-            dob: dob,
-            dateOfBirth: dob,
-            marriagestatus: value.MarriageStatus,
-            profession: value.Profession,
-            designation: value.Designation,
-            address: value.Address,
-            companyName: value.Company,
-            mobile: value.Mobile,
-            bloodGroup: value.BloodGroup,
-            gender: value.Gender,
-            city: value.City
-        };
-
-        await googleSheets.addRow(SHEETS.SHUBHECHHAK, newRow);
-
-        if (isNew) {
-            res.json({ message: `Record added successfully! Your New member id is ${newMemberId}` });
-        } else {
-            res.json({ message: "Record added successfully!" });
-        }
-    } catch (err) { res.status(500).json({ message: err.message }); }
-};
-
 // PUT: api/MemberData/:id (Update Member)
 exports.updateMember = async (req, res) => {
     try {
@@ -397,69 +317,11 @@ exports.updateMember = async (req, res) => {
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// PUT: api/MemberData/shubhechhak/:id
-exports.updateShubhechhakMember = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const value = req.body;
-
-        const rows = await googleSheets.getRows(SHEETS.SHUBHECHHAK);
-        const oldMember = rows.find(r => r._id === value.Id);
-        const oldMemberId = oldMember ? oldMember.memberId : null;
-
-        const dob = formatDate(value.DateOfBirth);
-        const updatedData = {
-            _id: value.Id,
-            memberId: value.MemberId.toString(),
-            name: value.Name,
-            relation: value.Relation,
-            dob: dob,
-            dateOfBirth: dob,
-            marriagestatus: value.MarriageStatus,
-            profession: value.Profession,
-            designation: value.Designation,
-            address: value.Address,
-            companyName: value.Company,
-            mobile: value.Mobile,
-            bloodGroup: value.BloodGroup,
-            city: value.City,
-            gender: value.Gender
-        };
-
-        await googleSheets.updateRow(SHEETS.SHUBHECHHAK, '_id', value.Id, updatedData);
-
-        const newMemberId = value.MemberId.toString();
-        if (oldMemberId && newMemberId && oldMemberId !== newMemberId) {
-            for (const row of rows) {
-                if (row.memberId === oldMemberId && row._id !== value.Id) {
-                    await googleSheets.updateRow(SHEETS.SHUBHECHHAK, '_id', row._id, { ...row, memberId: newMemberId });
-                }
-            }
-            const donationRows = await googleSheets.getRows(SHEETS.DONATION);
-            for (const dRow of donationRows) {
-                if (dRow.memberId === oldMemberId) {
-                    await googleSheets.updateRow(SHEETS.DONATION, 'id', dRow.id, { ...dRow, memberId: newMemberId });
-                }
-            }
-        }
-
-        res.json({ message: "Record updated successfully!" });
-    } catch (err) { res.status(500).json({ message: err.message }); }
-};
-
 // DELETE: api/MemberData/:id
 exports.deleteMember = async (req, res) => {
     try {
         await googleSheets.deleteRow(SHEETS.MEMBERS, 'House no.', req.params.id);
         res.json({ message: "Record deleted successfully from Member list!" });
-    } catch (err) { res.status(500).json({ message: err.message }); }
-};
-
-// DELETE: api/MemberData/shubhechhak/:id
-exports.deleteShubhechhakMember = async (req, res) => {
-    try {
-        await googleSheets.deleteRow(SHEETS.SHUBHECHHAK, '_id', req.params.id);
-        res.json({ message: "Record deleted successfully from Shubhechhak list!" });
     } catch (err) { res.status(500).json({ message: err.message }); }
 };
 

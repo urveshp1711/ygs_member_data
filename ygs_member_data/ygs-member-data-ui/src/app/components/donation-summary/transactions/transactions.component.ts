@@ -39,7 +39,7 @@ import { ToastService } from '../../../services/toast-service';
                 <tr>
                     <th scope="col" class="text-center">#</th>
                     <th scope="col" style="cursor: pointer;" (click)="onSort('Member Id')">
-                        Member Id
+                        House No.
                         <i class="bi" [ngClass]="{'bi-sort-alpha-down': sortColumn === 'Member Id' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Member Id' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Member Id'}" class="sort-icon"></i>
                     </th>
                     <th scope="col" style="cursor: pointer;" (click)="onSort('Name')">

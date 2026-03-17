@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
         <div class="col-12 mb-2">
             <div class="year-header d-flex align-items-center gap-2 mb-3">
                 <i class="bi bi-calendar-check text-primary fs-4"></i>
-                <h4 class="mb-0 fw-bold text-dark">Donation Year {{ summary.year || 'N/A' }}</h4>
+                <h4 class="mb-0 fw-bold text-dark">Asociation Free Report - {{ summary.year || 'N/A' }}</h4>
                 <div class="flex-grow-1 border-bottom ms-2 opacity-50"></div>
             </div>
             
