@@ -45,6 +45,12 @@
 							[ngClass]="{'bi-sort-alpha-down': sortColumn === 'Name' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Name' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Name'}"
 							style="font-size: 0.8rem; margin-left: 4px;"></i>
 					</th>
+					<th scope="col" (click)="onSort('Name - Gujarati')" style="cursor: pointer;">
+						Name - Gujarati
+						<i class="bi"
+							[ngClass]="{'bi-sort-alpha-down': sortColumn === 'Name - Gujarati' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Name - Gujarati' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Name - Gujarati'}"
+							style="font-size: 0.8rem; margin-left: 4px;"></i>
+					</th>
 					<th scope="col" (click)="onSort('Date Of Birth')" style="cursor: pointer;">
 						Birth Date
 						<i class="bi"
@@ -55,18 +61,6 @@
 						Gender
 						<i class="bi"
 							[ngClass]="{'bi-sort-alpha-down': sortColumn === 'Gender' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Gender' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Gender'}"
-							style="font-size: 0.8rem; margin-left: 4px;"></i>
-					</th>
-					<th scope="col" (click)="onSort('Relation')" style="cursor: pointer;">
-						Relation
-						<i class="bi"
-							[ngClass]="{'bi-sort-alpha-down': sortColumn === 'Relation' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Relation' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Relation'}"
-							style="font-size: 0.8rem; margin-left: 4px;"></i>
-					</th>
-					<th scope="col" (click)="onSort('Married')" style="cursor: pointer;">
-						Married
-						<i class="bi"
-							[ngClass]="{'bi-sort-alpha-down': sortColumn === 'Married' && sortDirection === 'asc', 'bi-sort-alpha-up': sortColumn === 'Married' && sortDirection === 'desc', 'bi-arrow-down-up': sortColumn !== 'Married'}"
 							style="font-size: 0.8rem; margin-left: 4px;"></i>
 					</th>
 					<th scope="col" (click)="onSort('Profession')" style="cursor: pointer;">
@@ -92,13 +86,18 @@
 					(keyup.escape)="editingRowId === member.Id && cancelInlineEdit(member)">
 					<td style="text-align: center;" data-field="Member Id">
 						<input *ngIf="editingRowId === member.Id; else memberIdView" class="form-control text-center"
-							type="text" [(ngModel)]="member['Member Id']" [id]="'inline-edit-Member-Id-' + member.Id" />
+							type="text" [(ngModel)]="member['Member Id']" [id]="'inline-edit-Member-Id-' + member.Id" readonly />
 						<ng-template #memberIdView>{{ member['Member Id'] }}</ng-template>
 					</td>
 					<td data-field="Name">
 						<input *ngIf="editingRowId === member.Id; else nameView" class="form-control" type="text"
 							[(ngModel)]="member.Name" [id]="'inline-edit-Name-' + member.Id" />
 						<ng-template #nameView>{{ member.Name }}</ng-template>
+					</td>
+					<td data-field="Name - Gujarati">
+						<input *ngIf="editingRowId === member.Id; else gujaratiNameView" class="form-control" type="text"
+							[(ngModel)]="member['Name - Gujarati']" [id]="'inline-edit-Name-Gujarati-' + member.Id" />
+						<ng-template #gujaratiNameView>{{ member['Name - Gujarati'] }}</ng-template>
 					</td>
 					<td data-field="Date Of Birth">
 						<input *ngIf="editingRowId === member.Id; else dobView" class="form-control" type="date"
@@ -115,20 +114,6 @@
 						</select>
 						<ng-template #genderView>{{ member.Gender }}</ng-template>
 					</td>
-					<td data-field="Relation">
-						<select *ngIf="editingRowId === member.Id; else relationView" class="form-control"
-							[(ngModel)]="member.Relation" [id]="'inline-edit-Relation-' + member.Id">
-							<option *ngFor="let rel of relation" [value]="rel">{{rel}}</option>
-						</select>
-						<ng-template #relationView>{{ member.Relation }}</ng-template>
-					</td>
-					<td data-field="Married">
-						<select *ngIf="editingRowId === member.Id; else marriedView" class="form-control"
-							[(ngModel)]="member.Married" [id]="'inline-edit-Married-' + member.Id">
-							<option *ngFor="let status of marriageStatus" [value]="status">{{status}}</option>
-						</select>
-						<ng-template #marriedView>{{member['Married']}}</ng-template>
-					</td>
 					<td data-field="Profession">
 						<input *ngIf="editingRowId === member.Id; else professionView" class="form-control" type="text"
 							[(ngModel)]="member.Profession" [id]="'inline-edit-Profession-' + member.Id" />
@@ -141,20 +126,18 @@
 					</td>
 					<td>
 						<div class="d-flex justify-content-center">
-							<ng-container *ngIf="editingRowId === member.Id; else actionsView">
-								<i class="bi bi-save p-1 icon-style text-success" title="Save member"
-									(click)="updateInlineRow(member)"></i>
-								<i class="bi bi-x-circle p-1 icon-style text-danger" title="Cancel editing"
-									(click)="cancelInlineEdit(member)"></i>
-							</ng-container>
-							<ng-template #actionsView>
+							<i class="bi bi-save p-1 icon-style text-success" title="Save member"
+								(click)="updateInlineRow(member)"></i>
+							<i class="bi bi-x-circle p-1 icon-style text-danger" title="Cancel editing"
+								(click)="cancelInlineEdit(member)"></i>
+							<ng-container *ngIf="editingRowId !== member.Id">
 								<i class="bi bi-pencil p-1 icon-style text-primary" title="Inline Edit"
 									(click)="startInlineEdit(member)"></i>
 								<i class="bi bi-window p-1 icon-style" title="Modal Edit"
 									(click)="editMemberInfo(member['Id'])"></i>
 								<i class="bi bi-trash p-1 icon-style text-danger" title="Delete member"
 									(click)="deleteMember(member)"></i>
-							</ng-template>
+							</ng-container>
 						</div>
 					</td>
 				</tr>
@@ -206,6 +189,12 @@
 		<div class="modal-body">
 			<form [formGroup]="upsertMemberDataFormGroup">
 				<div class="row">
+					<!-- House No. Field -->
+					<div class="col-xs-12 col-sm-6 mb-2">
+						<label for="memberId" class="col-form-label">House no.*</label>
+						<input id="memberId" class="form-control" type="text" formControlName="memberId" />
+					</div>
+
 					<!-- Name Field -->
 					<div class="col-xs-12 col-sm-6 mb-2">
 						<label for="name" class="col-form-label">Name*</label>
@@ -215,41 +204,13 @@
 							Name is required.
 						</div>
 					</div>
-
-					<!-- Date of Birth Field -->
-					<div class="col-xs-12 col-sm-6 mb-2">
-						<label for="dateOfBirth" class="col-form-label">Date of Birth</label>
-						<input class="form-control" placeholder="yyyy-mm-dd" [minDate]="minDate" name="dp"
-							formControlName="dateOfBirth" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
-					</div>
 				</div>
 
 				<div class="row">
-					<!-- Relation Field -->
+					<!-- Name Gujarati Field -->
 					<div class="col-xs-12 col-sm-6 mb-2">
-						<label for="relation" class="col-form-label">Relation With Parent</label>
-						<input id="typeahead-focus" type="text" class="form-control" formControlName="relation"
-							[ngbTypeahead]="searchRelation" (focus)="focusR$.next($any($event).target.value)"
-							(click)="clickR$.next($any($event).target.value)" #iRelation="ngbTypeahead" />
-						<div *ngIf="upsertMemberDataFormGroup.get('relation').invalid && (upsertMemberDataFormGroup.get('relation').dirty || upsertMemberDataFormGroup.get('relation').touched)"
-							class="validation-error">
-							Relation is required.
-						</div>
-					</div>
-
-					<div class="col-xs-12 col-sm-6 mb-2">
-						<label for="parentMemberId" class="col-form-label">Parent Member Id</label>
-						<input id="parentMemberId" class="form-control" type="text" formControlName="memberId" />
-					</div>
-				</div>
-
-				<div class="row">
-					<!-- Marriage Status Field -->
-					<div class="col-xs-12 col-sm-6 mb-2">
-						<label for="marriageStatus" class="col-form-label">Marriage Status</label>
-						<input id="typeahead-focus" type="text" class="form-control" formControlName="marriageStatus"
-							[ngbTypeahead]="searchMarriageStatus" (focus)="focusMR$.next($any($event).target.value)"
-							(click)="clickMR$.next($any($event).target.value)" #iMarriageStatus="ngbTypeahead" />
+						<label for="nameGujarati" class="col-form-label">Name - Gujarati</label>
+						<input id="nameGujarati" class="form-control" type="text" formControlName="nameGujarati" />
 					</div>
 
 					<!-- Mobile Field -->
@@ -260,6 +221,15 @@
 							class="validation-error">
 							Mobile number is required.
 						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<!-- Date of Birth Field -->
+					<div class="col-xs-12 col-sm-6 mb-2">
+						<label for="dateOfBirth" class="col-form-label">Date of Birth</label>
+						<input class="form-control" placeholder="yyyy-mm-dd" [minDate]="minDate" name="dp"
+							formControlName="dateOfBirth" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
 					</div>
 				</div>
 

@@ -145,8 +145,8 @@ export class MemberDataComponent {
         const term = text.toLowerCase();
         return (
           (member.Name ? member.Name.toLowerCase().includes(term) : false) ||
+          (member['Name - Gujarati'] ? member['Name - Gujarati'].toLowerCase().includes(term) : false) ||
           (member.Mobile ? member.Mobile.toLowerCase().includes(term) : false) ||
-          (member.Relation ? member.Relation.toLowerCase().includes(term) : false) ||
           (member.Profession ? member.Profession.toLowerCase().includes(term) : false) ||
           (member['Member Id'] ? member['Member Id'].toLowerCase().includes(term) : false)
         );
@@ -214,7 +214,7 @@ export class MemberDataComponent {
     const term = this.filter.value.toLocaleLowerCase();
     let filtered = this.members.filter((member) => (
       (member.Name ? member.Name.toLowerCase().includes(term) : false) ||
-      (member.Relation ? member.Relation.toLowerCase().includes(term) : false) ||
+      (member['Name - Gujarati'] ? member['Name - Gujarati'].toLowerCase().includes(term) : false) ||
       (member.Mobile ? member.Mobile.toLowerCase().includes(term) : false) ||
       (member['Member Id'] ? member['Member Id'].toLowerCase().includes(term) : false)
     ));
@@ -332,7 +332,8 @@ export class MemberDataComponent {
       id: [''],
       memberId: [''],
       name: ['', [Validators.required]],
-      relation: ['', [Validators.required]],
+      nameGujarati: [''],
+      relation: [''],
       dob: null,
       dateOfBirth: null,
       marriageStatus: '',
@@ -383,6 +384,7 @@ export class MemberDataComponent {
             leadMember: data["Table"][0]['Lead'] || '',
             address: data["Table"][0]["Address"] || '',
             name: data["Table"][0]['Name'] || '',
+            nameGujarati: data["Table"][0]['Name - Gujarati'] || '',
             relation: data["Table"][0]['Relation'] || '',
             dateOfBirth: data["Table"][0]['Date Of Birth'] ? ngDate : null,
             dob: data["Table"][0]['Date Of Birth'] ? ngDate : null,
@@ -397,6 +399,7 @@ export class MemberDataComponent {
           };
 
           this.upsertMemberDataFormGroup.patchValue(memberInfo);
+          this.upsertMemberDataFormGroup.get('memberId')?.disable();
           this.loading = false;
           this.open(this.content);
         })
@@ -419,6 +422,7 @@ export class MemberDataComponent {
 
     if (addDialog) {
       this.upsertMemberDataFormGroup.reset();
+      this.upsertMemberDataFormGroup.get('memberId')?.enable();
     }
 
     this.modalService.open(content, { size: 'lg', ariaLabelledBy: 'modal-basic-title' }).result.then(
@@ -497,10 +501,7 @@ export class MemberDataComponent {
     }
 
     setTimeout(() => {
-      // Check if we are still editing this row (e.g. wasn't cancelled)
-      if (this.editingRowId === member.Id) {
-        this.cancelInlineEdit(member);
-      }
+      // Focus out handled by explicit buttons now
     }, 200);
   }
 

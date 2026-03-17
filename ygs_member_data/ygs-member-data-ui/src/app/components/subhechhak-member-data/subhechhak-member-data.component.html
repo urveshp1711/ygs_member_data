@@ -87,7 +87,7 @@
 					(keyup.escape)="editingRowId === member.Id && cancelInlineEdit(member)">
 					<td style="text-align: center;" data-field="Member Id">
 						<input *ngIf="editingRowId === member.Id; else memberIdView" class="form-control text-center"
-							type="text" [(ngModel)]="member['Member Id']" [id]="'inline-edit-Member-Id-' + member.Id" />
+							type="text" [(ngModel)]="member['Member Id']" [id]="'inline-edit-Member-Id-' + member.Id" readonly />
 						<ng-template #memberIdView>{{ member['Member Id'] }}</ng-template>
 					</td>
 					<td data-field="Name">
@@ -129,20 +129,18 @@
 					</td>
 					<td>
 						<div class="d-flex justify-content-center">
-							<ng-container *ngIf="editingRowId === member.Id; else actionsView">
-								<i class="bi bi-save p-1 icon-style text-success" title="Save member"
-									(click)="updateInlineRow(member)"></i>
-								<i class="bi bi-x-circle p-1 icon-style text-danger" title="Cancel editing"
-									(click)="cancelInlineEdit(member)"></i>
-							</ng-container>
-							<ng-template #actionsView>
+							<i class="bi bi-save p-1 icon-style text-success" title="Save member"
+								(click)="updateInlineRow(member)"></i>
+							<i class="bi bi-x-circle p-1 icon-style text-danger" title="Cancel editing"
+								(click)="cancelInlineEdit(member)"></i>
+							<ng-container *ngIf="editingRowId !== member.Id">
 								<i class="bi bi-pencil p-1 icon-style text-primary" title="Inline Edit"
 									(click)="startInlineEdit(member)"></i>
 								<i class="bi bi-window p-1 icon-style" title="Modal Edit"
 									(click)="editMemberInfo(member['Id'])"></i>
 								<i class="bi bi-trash p-1 icon-style text-danger" title="Delete member"
 									(click)="deleteMember(member)"></i>
-							</ng-template>
+							</ng-container>
 						</div>
 					</td>
 				</tr>

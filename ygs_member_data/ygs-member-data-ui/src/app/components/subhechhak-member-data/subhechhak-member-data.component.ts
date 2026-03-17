@@ -503,9 +503,7 @@ export class SubhechhakMemberDataComponent {
     }
 
     setTimeout(() => {
-      if (this.editingRowId === member.Id) {
-        this.cancelInlineEdit(member);
-      }
+      // Focus out handled by explicit buttons now
     }, 200);
   }
 
