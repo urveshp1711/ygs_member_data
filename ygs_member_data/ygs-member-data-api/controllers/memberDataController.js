@@ -253,16 +253,31 @@ exports.getDonationData = async (req, res) => {
         let rows = await googleSheets.getRows(SHEETS.ASSOCIATION_FEES);
 
         if (year) {
+            const requestedYear = parseInt(year);
             rows = rows.filter(row => {
-                const date = new Date(row.paymentDate);
-                return !isNaN(date.getTime()) && date.getFullYear().toString() === year;
+                const fromYear = parseInt(row.fromYear);
+                const toYear = parseInt(row.toYear);
+                
+                // If period is missing, fallback to paymentDate (compatibility)
+                if (isNaN(fromYear) || isNaN(toYear)) {
+                    const date = new Date(row.paymentDate);
+                    return !isNaN(date.getTime()) && date.getFullYear() === requestedYear;
+                }
+
+                // Check if the requested year is within the year range inclusive
+                return requestedYear >= fromYear && requestedYear <= toYear;
             });
         }
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const formattedRows = rows.map(row => {
-            const fromP = (row.fromMonth !== undefined && row.fromMonth !== '') ? `${monthNames[row.fromMonth]} ${row.fromYear}` : '';
-            const toP = (row.toMonth !== undefined && row.toMonth !== '') ? `${monthNames[row.toMonth]} ${row.toYear}` : '';
+            const fromMonth = (row.fromMonth !== undefined && row.fromMonth !== '') ? parseInt(row.fromMonth) : null;
+            const fromYear = (row.fromYear !== undefined && row.fromYear !== '') ? parseInt(row.fromYear) : null;
+            const toMonth = (row.toMonth !== undefined && row.toMonth !== '') ? parseInt(row.toMonth) : null;
+            const toYear = (row.toYear !== undefined && row.toYear !== '') ? parseInt(row.toYear) : null;
+
+            const fromP = fromMonth !== null ? `${monthNames[fromMonth]} ${fromYear}` : '';
+            const toP = toMonth !== null ? `${monthNames[toMonth]} ${toYear}` : '';
             
             return {
                 id: row.id,
@@ -274,7 +289,11 @@ exports.getDonationData = async (req, res) => {
                 "PaymentType": row.paymentType,
                 "PaymentNo": row.paymentNo,
                 "PaymentDate": row.paymentDate,
-                "FeePeriod": fromP === toP ? fromP : `${fromP} - ${toP}`
+                "FeePeriod": fromP === toP ? fromP : `${fromP} - ${toP}`,
+                fromMonth,
+                fromYear,
+                toMonth,
+                toYear
             };
         }).sort((a, b) => new Date(b.PaymentDate) - new Date(a.PaymentDate));
 
