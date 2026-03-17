@@ -80,6 +80,7 @@ export class InvoiceGeneratorComponent {
     this.memberForm.controls.paymentNo.disable();
     this.setupAutoFetch();
     this.setupFeeCalculation();
+    this.calculateFee();
   }
 
   setupFeeCalculation() {
@@ -191,7 +192,7 @@ export class InvoiceGeneratorComponent {
     this.memberForm!.reset();
     this.memberForm?.patchValue({
       paymentType: 'રોકડા',
-      amount: 0,
+      amount: 100,
       fromMonth: new Date().getMonth(),
       fromYear: new Date().getFullYear(),
       toMonth: new Date().getMonth(),
